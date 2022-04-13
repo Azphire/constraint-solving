@@ -36,8 +36,9 @@ def set_block(start: int, choice: Variable) -> list:
     return block
 
 
-class MazeEncode:
+class MazeEncoder:
     def __init__(self, maze: list, file: str):
+        self.file = file
         self.maze = maze
         self.n = len(self.maze)
         self.actions = {}
@@ -71,8 +72,10 @@ class MazeEncode:
         self.action_num -= 1
         self.variable_num = self.action_begin + self.action_num * self.k
         self.clauses = []
+
+    def encode(self):
         self.generate_clauses()
-        self.generate_cnf(file)
+        self.generate_cnf()
 
     def generate_clauses(self):
         # generate states
@@ -156,18 +159,41 @@ class MazeEncode:
                         continue
                     self.clauses.append(package_clause([-a1, -a2]))
 
-    def generate_cnf(self, file: str):
-        with open(file, 'w') as f:
+    def generate_cnf(self):
+        with open(self.file, 'w') as f:
             f.write('p cnf ' + str(self.variable_num) + ' ' + str(len(self.clauses)) + '\n')
             for c in self.clauses:
                 f.write(c + '\n')
 
+    def decode(self):
+        with open(self.file, 'r') as f:
+            for line in f.readlines():
+                if line.strip() == 'SAT':
+                    continue
+                variables = line.split(' ')
+        variables.remove('0\n')
+        path = []
+        for t in range(self.block_num):
+            for key, value in self.blocks.items():
+                block = self.block_num * 3 * t + (value - 1) * 3 + 1
+                if int(variables[block - 1]) > 0:
+                    path.append(key)
+                    break
+        for i, j in path:
+            self.maze[i][j] = 2
+        print('PATH')
+        for i in range(self.n):
+            line = ''
+            for j in range(self.n):
+                line += str(maze[i][j])
+            print(line)
+
 
 if __name__ == '__main__':
     maze = generate_maze()
-    # maze_test = [
-    #     [0, 0, 1],
-    #     [1, 1, 0],
-    #     [0, 1, 0]
-    # ]
-    encoder = MazeEncode(maze, 'encoding/sample1.cnf')
+
+    # encoder = MazeEncoder(maze, 'encoding/sample0.cnf')
+    # encoder.encode()
+
+    encoder = MazeEncoder(maze, 'encoding/output_sample2.log')
+    encoder.decode()
