@@ -52,7 +52,7 @@
     - pre 前一个是current，后一个是empty
     - eff 前一个变成arrived，后一个变成current
     - 两个格子相邻为一个action，每个时刻为True的action为被执行的action
-    - 每个action需要12个布尔变量
+    - 每个action需要1个布尔变量标识
 - State：
 	- 每个无障碍格子的赋值
     - 每个state需要格子总数*3个布尔变量
@@ -68,5 +68,8 @@
 5. 每个action都满足pre
 6. 每个action都实现eff
 7. state变量不经过action不可改变
+   - 变成current：坐标为action的后一个格子
+   - 变成arrived：坐标为action的前一个格子
+   - 变成empty：不可以
 8. 每一步最多只能使用一个action
 
